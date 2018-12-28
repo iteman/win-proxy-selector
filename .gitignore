@@ -5,7 +5,7 @@
 bin/
 
 #IDEA
-proxy-vole.iml
+win-proxy-selector.iml
 .idea
 
 # Maven
