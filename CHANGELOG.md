@@ -1,6 +1,12 @@
 # Change Log
 This file contains the change log.
 
+## 1.0.0
+* Reorganized the code to adapt to our requirement and deleted unnecessary files.
+* Created WinProxySelectorFactory which returns a ProxySelector we think best mimics IE's proxy finding behavior.
+
+## Last version of proxy-vole at https://github.com/MarkusBernhardt/proxy-vole/
+
 ## Unreleased
 * Fixed issue #10: IE fixed socks proxy parsed as http. Thanks to OnixGH!
 * Fixed issue #50: NullPointerException in Proxy-vole 1.0.5
@@ -14,7 +20,7 @@ This file contains the change log.
 * Fixed issue #43: Proxy-vole provoking sporadic crashes in ntdll
 
 ## 1.0.4
-* Fixed issue  #9: Unresponsive proxy with ProxyListFallbackSelector -> NPE 
+* Fixed issue  #9: Unresponsive proxy with ProxyListFallbackSelector -> NPE
 * Fixed issue #14: WPAD search downto http://wpad/wpad.dat
 * Fixed issue #16: Security improvement for issue #14. Thanks to dbdr!
 * Fixed issue #21: Fixes bug in calling Windows function WinHttpDetectAutoProxyConfigUrl. Thanks to phansson!
@@ -26,7 +32,7 @@ This file contains the change log.
 
 ## 1.0.2
 * Fixed issue #2: NullPointerException if PAC method returns null
-* Fixed issue #1: Caching with individual URLs might not be ideal  
+* Fixed issue #1: Caching with individual URLs might not be ideal
 * Changes after receiving some mails from different people about ASL2 licensing
 
 ## 1.0.1

@@ -4,5 +4,10 @@
 .classpath
 bin/
 
+#IDEA
+proxy-vole.iml
+.idea
+
 # Maven
 target/
+
