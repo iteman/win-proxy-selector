@@ -1,4 +1,5 @@
 # win-proxy-selector
+Win Proxy Selector is a ProxySelector implementation for Windows environment.
 
 Win Proxy Selector is a fork of Proxy Vole, which is a Java library to auto detect the platform network proxy settings.
 Win Proxy Selector is currently dedicated to the Windows environment.
