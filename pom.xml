@@ -2,31 +2,28 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>9</version>
-  </parent>
+  <groupId>com.watermark_apps</groupId>
+  <artifactId>win-proxy-selector</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
 
-  <groupId>com.github.markusbernhardt</groupId>
-  <artifactId>proxy-vole</artifactId>
-  <version>1.0.6-SNAPSHOT</version>
+  <name>Win Proxy Selector</name>
+  <description>Win Proxy is a Java library to auto detect the platform network proxy settings.</description>
+  <url>https://github.com/fusions/win-proxy-selector</url>
 
-  <name>Proxy Vole</name>
-  <description>Proxy Vole is a Java library to auto detect the platform network proxy settings.</description>
-  <url>https://github.com/MarkusBernhardt/proxy-vole</url>
+  <packaging>jar</packaging>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <downloadSources>true</downloadSources>
     <downloadJavadocs>true</downloadJavadocs>
-    <java.version>1.6</java.version>
+    <jarBaseName>win-proxy-selector</jarBaseName>
+    <java.version>1.8</java.version>
   </properties>
 
   <scm>
-    <url>https://github.com/MarkusBernhardt/proxy-vole</url>
-    <connection>scm:git://github.com/MarkusBernhardt/proxy-vole.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/MarkusBernhardt/proxy-vole.git</developerConnection>
+    <url>https://github.com/fusions/win-proxy-selector</url>
+    <connection>scm:git://github.com/fusions/win-proxy-selector.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/fusions/win-proxy-selector.git</developerConnection>
   </scm>
 
   <licenses>
@@ -39,8 +36,8 @@
 
   <developers>
     <developer>
-      <name>Markus Bernhardt</name>
-      <email>markus.bernhardt@me.com</email>
+      <name>fusions co.,ltd.</name>
+      <email>contact@fusions.co.jp</email>
     </developer>
   </developers>
 
@@ -49,18 +46,17 @@
       <groupId>net.java.dev.jna</groupId>
       <artifactId>jna</artifactId>
     </dependency>
-    <dependency>
-      <groupId>net.java.dev.jna</groupId>
-      <artifactId>jna-platform</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.ini4j</groupId>
       <artifactId>ini4j</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.javadelight</groupId>
       <artifactId>delight-nashorn-sandbox</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -204,11 +200,13 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
+          <!--
           <archive>
             <manifest>
-              <mainClass>com.github.markusbernhardt.proxy.ui.ProxyTester</mainClass>
+              <mainClass>main.java.jp.co.fusions.win_proxy_selector.ui.ProxyTester</mainClass>
             </manifest>
           </archive>
+          -->
         </configuration>
         <executions>
           <execution>
