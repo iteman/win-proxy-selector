@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import jp.co.fusions.win_proxy_selector.TestUtil;
 import jp.co.fusions.win_proxy_selector.selector.whitelist.LocalByPassFilter;
-import jp.co.fusions.win_proxy_selector.win.WinProxySelectorFactory;
+import jp.co.fusions.win_proxy_selector.win.WinProxySelector;
 import jp.co.fusions.win_proxy_selector.util.PlatformUtil;
 import jp.co.fusions.win_proxy_selector.util.UriFilter;
 import jp.co.fusions.win_proxy_selector.util.PlatformUtil.Platform;
@@ -36,7 +36,7 @@ public class IeTest {
 	@Test
 	public void testInvoke()  {
 		if (Platform.WIN.equals(PlatformUtil.getCurrentPlatform())) {
-			WinProxySelectorFactory st = new WinProxySelectorFactory();
+			WinProxySelector st = new WinProxySelector();
 
 			// Try at least to invoke it and test if the dll does not crash
 			st.getProxySelector();

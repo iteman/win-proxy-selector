@@ -18,7 +18,7 @@ The library provides a ProxySelector factory which reads the proxy settings from
 ```Java
 // Instantiate the factory class and call its getProxySelector() method to obtain a proxy selector.
 
-WinProxySelectorFactory factory = new WinProxySelectorFactory();
+WinProxySelectorFactory factory = new WinProxySelector(ProxySelector.getDefault());
 ProxySelector myProxySelector = factory.getProxySelector();
 
 

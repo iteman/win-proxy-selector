@@ -8,7 +8,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.MessageFormat;
 
-import jp.co.fusions.win_proxy_selector.win.WinProxySelectorFactory;
+import jp.co.fusions.win_proxy_selector.win.WinProxySelector;
 import jp.co.fusions.win_proxy_selector.util.Logger;
 import jp.co.fusions.win_proxy_selector.util.Logger.LogLevel;
 
@@ -56,7 +56,7 @@ public class PacProxyDebugging {
 		pt.installLogger();
 
 
-		ProxySelector myProxySelector = new WinProxySelectorFactory().getProxySelector();
+		ProxySelector myProxySelector = new WinProxySelector().getProxySelector();
 
 		ProxySelector.setDefault(myProxySelector);
 		System.out.println("Using proxy selector: " + myProxySelector);

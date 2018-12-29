@@ -1,10 +1,13 @@
 package jp.co.fusions.win_proxy_selector.win;
 
+import java.io.IOException;
+import java.net.Proxy;
 import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import jp.co.fusions.win_proxy_selector.ProxySelectorFactory;
 import jp.co.fusions.win_proxy_selector.selector.misc.ListProxySelector;
 import jp.co.fusions.win_proxy_selector.selector.misc.ProtocolDispatchSelector;
 import jp.co.fusions.win_proxy_selector.util.Logger;
@@ -18,24 +21,38 @@ import jp.co.fusions.win_proxy_selector.win.jna.WinHttpProxyInfo;
 
 
 /*****************************************************************************
- * Provides a ProxySelector which extracts the proxy settings for
+ * A ProxySelector which extracts the proxy settings for
  * Microsoft Internet Explorer.
  * The settings are read by invoking native Windows API methods.
+ * PAC files (JavaScript) are evaluated with the Nashorn engine.
  *
  * @author Kei Sugimoto, Copyright 2018
- * @author Bernd Rosstauscher (proxyvole@rosstauscher.de) Copyright 2009
  ****************************************************************************/
 
-public class WinProxySelectorFactory implements ProxySelectorFactory {
+public class WinProxySelector extends ProxySelector {
 
-	/*************************************************************************
-	 * getProxySelector
-	 *
-	 * @see ProxySelectorFactory#getProxySelector()
-	 ************************************************************************/
+	private final ProxySelector fallbackSelector;
+	private ProxySelector impl;
+
+	public WinProxySelector(ProxySelector fallbackSelector) {
+		this.fallbackSelector = fallbackSelector;
+	}
 
 	@Override
-	public ProxySelector getProxySelector() {
+	public List<Proxy> select(URI uri) {
+		if (impl == null){
+			impl = createImpl();
+		}
+		return impl.select(uri);
+	}
+
+	@Override
+	public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+		if (impl == null) return;
+		impl.connectFailed(uri, sa, ioe);
+	}
+
+	private ProxySelector createImpl() {
 
 		Logger.log(getClass(), LogLevel.TRACE, "Detecting Windows proxy settings");
 
@@ -58,7 +75,7 @@ public class WinProxySelectorFactory implements ProxySelectorFactory {
 			addIfNotNull(selectors, createWinHttpProxySelector(winHttpProxyConfig));
 		}
 
-		return new ListProxySelector(selectors, ProxySelector.getDefault());
+		return new ListProxySelector(selectors, fallbackSelector);
 	}
 
 	private void addIfNotNull(List<ProxySelector> l, ProxySelector selector) {

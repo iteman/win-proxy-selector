@@ -6,7 +6,7 @@ import java.net.URI;
 import java.text.MessageFormat;
 import java.util.List;
 import jp.co.fusions.win_proxy_selector.util.Logger;
-import jp.co.fusions.win_proxy_selector.win.WinProxySelectorFactory;
+import jp.co.fusions.win_proxy_selector.win.WinProxySelector;
 
 /*****************************************************************************
  * Some examples on how to use the API
@@ -29,8 +29,7 @@ public class Examples {
 	}
 
 	private void execute() throws Exception{
-		WinProxySelectorFactory factory = new WinProxySelectorFactory();
-		ProxySelector myProxySelector = factory.getProxySelector();
+		WinProxySelector myProxySelector = new WinProxySelector(ProxySelector.getDefault());
 		List<Proxy> proxies = myProxySelector.select(new URI("https://www.fusions.co.jp"));
 		System.out.println();
 		for (Proxy proxy : proxies) {
