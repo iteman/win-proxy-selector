@@ -16,11 +16,9 @@ The library provides a ProxySelector factory which reads the proxy settings from
 
 ### Using the default strategy to find the settings
 ```Java
-// Instantiate the factory class and call its getProxySelector() method to obtain a proxy selector.
+// Instantiate a WinProxySelector giving a fallback proxy selector (usually the system's default proxy selector).
 
-WinProxySelectorFactory factory = new WinProxySelector(ProxySelector.getDefault());
-ProxySelector myProxySelector = factory.getProxySelector();
-
+ProxySelector myProxySelector = new WinProxySelector(ProxySelector.getDefault());
 
 // Proxies can be got by invoking select() method with a URI you want to connect to.
 List<Proxy> proxies = myProxySelector.select(new URI("http://www.fusions.co.jp"));
