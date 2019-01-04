@@ -1,11 +1,12 @@
 package jp.co.fusions.win_proxy_selector.selector.pac;
 
-import jp.co.fusions.win_proxy_selector.util.Logger;
-import jp.co.fusions.win_proxy_selector.util.Logger.LogLevel;
 import delight.nashornsandbox.NashornSandbox;
 import delight.nashornsandbox.NashornSandboxes;
-
+import delight.nashornsandbox.exceptions.ScriptCPUAbuseException;
 import java.lang.reflect.Method;
+import javax.script.ScriptException;
+import jp.co.fusions.win_proxy_selector.util.Logger;
+import jp.co.fusions.win_proxy_selector.util.Logger.LogLevel;
 
 /*****************************************************************************
  * PAC parser using the Nashorn JavaScript engine bundled with Java 1.8<br>
@@ -135,10 +136,14 @@ public class JavaxPacScriptParser implements PacScriptParser {
 			StringBuilder script = new StringBuilder(this.source.getScriptContent());
 			String evalMethod = " ;FindProxyForURL (\"" + url + "\",\"" + host + "\")";
 			script.append(evalMethod);
-			Object result = this.engine.eval(script.toString());
-			return (String) result;
+			try {
+				Object result = this.engine.eval(script.toString());
+				return (String) result;
+			} catch (ScriptCPUAbuseException | ScriptException e) {
+				Logger.log(getClass(), LogLevel.ERROR, "JS evaluation error.\n" + script.toString(), e);
+				throw e;
+			}
 		} catch (Exception e) {
-			Logger.log(getClass(), LogLevel.ERROR, "JS evaluation error.", e);
 			throw new ProxyEvaluationException("Error while executing PAC script: " + e.getMessage(), e);
 		}
 

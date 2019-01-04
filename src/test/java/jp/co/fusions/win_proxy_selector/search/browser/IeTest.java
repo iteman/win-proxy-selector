@@ -1,5 +1,7 @@
 package jp.co.fusions.win_proxy_selector.search.browser;
 
+import java.net.ProxySelector;
+import java.util.regex.Pattern;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -36,10 +38,8 @@ public class IeTest {
 	@Test
 	public void testInvoke()  {
 		if (Platform.WIN.equals(PlatformUtil.getCurrentPlatform())) {
-			WinProxySelector st = new WinProxySelector();
+			WinProxySelector st = new WinProxySelector(ProxySelector.getDefault());
 
-			// Try at least to invoke it and test if the dll does not crash
-			st.getProxySelector();
 		}
 	}
 

@@ -141,7 +141,7 @@ public class WinProxySelector extends ProxySelector {
 			Logger.log(getClass(), LogLevel.TRACE, "PAC url not auto-detectable.");
 			return null;
 		}
-		Logger.log(getClass(), LogLevel.TRACE, "IE uses script: " + pacUrl);
+		Logger.log(getClass(), LogLevel.INFO, "IE uses script: " + pacUrl);
 
 		Logger.log(getClass(), LogLevel.TRACE, "Created Auto-detecting proxy selector.");
 		return ProxyUtil.buildPacSelectorForUrl(pacUrl);
@@ -155,7 +155,7 @@ public class WinProxySelector extends ProxySelector {
 			Logger.log(getClass(), LogLevel.TRACE, "Auto-config not requested.");
 			return null;
 		}
-		Logger.log(getClass(), LogLevel.TRACE, "IE uses script: " + pacUrl);
+		Logger.log(getClass(), LogLevel.INFO, "IE uses script: " + pacUrl);
 
 		// Fix for issue 9
 		// If the IE has a file URL and it only starts has 2 slashes,
@@ -186,7 +186,7 @@ public class WinProxySelector extends ProxySelector {
 		if (proxyString == null) {
 			return null;
 		}
-		Logger.log(getClass(), LogLevel.TRACE, "IE uses manual settings: {0} with bypass list: {1}", proxyString,
+		Logger.log(getClass(), LogLevel.INFO, "IE uses manual settings: {0} with bypass list: {1}", proxyString,
 			bypassList);
 
 		Properties p = ProxyUtil.parseProxyList(proxyString);
@@ -203,7 +203,7 @@ public class WinProxySelector extends ProxySelector {
 		if (proxyString == null) {
 			return null;
 		}
-		Logger.log(getClass(), LogLevel.TRACE, "WinHttp uses manual settings: {0} with bypass list: {1}", proxyString,
+		Logger.log(getClass(), LogLevel.INFO, "WinHttp uses manual settings: {0} with bypass list: {1}", proxyString,
 			bypassList);
 
 		Properties p = ProxyUtil.parseProxyList(proxyString);

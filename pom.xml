@@ -48,29 +48,21 @@
     </dependency>
 
     <dependency>
-      <groupId>org.ini4j</groupId>
-      <artifactId>ini4j</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.javadelight</groupId>
       <artifactId>delight-nashorn-sandbox</artifactId>
     </dependency>
-
+<!--
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
-
+-->
     <!-- test dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.github.stefanbirkner</groupId>
-      <artifactId>system-rules</artifactId>
-    </dependency>
+
   </dependencies>
 
   <dependencyManagement>
@@ -80,25 +72,11 @@
         <artifactId>jna</artifactId>
         <version>4.5.1</version>
       </dependency>
-      <dependency>
-        <groupId>net.java.dev.jna</groupId>
-        <artifactId>jna-platform</artifactId>
-        <version>4.5.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.ini4j</groupId>
-        <artifactId>ini4j</artifactId>
-        <version>0.5.4</version>
-      </dependency>
+
       <dependency>
         <groupId>org.javadelight</groupId>
         <artifactId>delight-nashorn-sandbox</artifactId>
         <version>0.1.14</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.25</version>
       </dependency>
 
       <!-- test dependencies -->
@@ -108,12 +86,7 @@
         <version>4.12</version>
         <scope>test</scope>
       </dependency>
-      <dependency>
-        <groupId>com.github.stefanbirkner</groupId>
-        <artifactId>system-rules</artifactId>
-        <version>1.18.0</version>
-        <scope>test</scope>
-      </dependency>
+
     </dependencies>
   </dependencyManagement>
 

@@ -56,7 +56,7 @@ public class PacProxyDebugging {
 		pt.installLogger();
 
 
-		ProxySelector myProxySelector = new WinProxySelector().getProxySelector();
+		ProxySelector myProxySelector = new WinProxySelector(ProxySelector.getDefault());
 
 		ProxySelector.setDefault(myProxySelector);
 		System.out.println("Using proxy selector: " + myProxySelector);
