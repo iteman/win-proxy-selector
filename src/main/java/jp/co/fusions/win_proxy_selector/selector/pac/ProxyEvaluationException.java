@@ -11,12 +11,15 @@ public class ProxyEvaluationException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
+	private final String script;
+
 	/*************************************************************************
 	 * Constructor
 	 ************************************************************************/
 
 	public ProxyEvaluationException() {
 		super();
+		this.script = null;
 	}
 
 	/*************************************************************************
@@ -28,8 +31,9 @@ public class ProxyEvaluationException extends Exception {
 	 *            the causing exception for exception chaining.
 	 ************************************************************************/
 
-	public ProxyEvaluationException(String message, Throwable cause) {
+	public ProxyEvaluationException(String message, Throwable cause, String script) {
 		super(message, cause);
+		this.script = script;
 	}
 
 	/*************************************************************************
@@ -41,6 +45,7 @@ public class ProxyEvaluationException extends Exception {
 
 	public ProxyEvaluationException(String message) {
 		super(message);
+		this.script = null;
 	}
 
 	/*************************************************************************
@@ -52,6 +57,10 @@ public class ProxyEvaluationException extends Exception {
 
 	public ProxyEvaluationException(Throwable cause) {
 		super(cause);
+		this.script = null;
 	}
 
+	public String getScript() {
+		return script;
+	}
 }

@@ -139,7 +139,7 @@ public class PacProxySelector extends ProxySelector {
 			}
 			return proxies;
 		} catch (ProxyEvaluationException e) {
-			Logger.log(getClass(), LogLevel.ERROR, "PAC resolving error.", e);
+			Logger.log(getClass(), LogLevel.ERROR, "PAC JavaScript evaluation error. \n{0}\n{1}", e.getScript(),e);
 			return ProxyUtil.noProxyList();
 		}
 	}
@@ -153,20 +153,26 @@ public class PacProxySelector extends ProxySelector {
 	 * @return a Proxy
 	 ************************************************************************/
 
-	private static Proxy buildProxyFromPacResult(String pacResult) {
+	static Proxy buildProxyFromPacResult(String pacResult) {
 		String[] words = pacResult.trim().split("\\s+");
 		if (words.length == 0) return Proxy.NO_PROXY;
 
 		// Check proxy type.
 		Proxy.Type type = toProxyType(words[0]);
 		if (type == Proxy.Type.DIRECT) return Proxy.NO_PROXY;
-		if (words.length != 2) return Proxy.NO_PROXY;
+		if (words.length < 2) return Proxy.NO_PROXY;
 
-		SocketAddress adr = toSocketAddress(words[1]);
+		SocketAddress adr = toSocketAddress(concat(words,1));
 
 		return new Proxy(type, adr);
 	}
-
+	private static String concat(String[] strings, int startIndex){
+		StringBuilder b = new StringBuilder();
+		for (int i = startIndex; i < strings.length; i++) {
+			b.append(strings[i]);
+		}
+		return b.toString();
+	}
 	private static Proxy.Type toProxyType(String string) {
 		String proxyType = string.toUpperCase().trim();
 
@@ -185,23 +191,23 @@ public class PacProxySelector extends ProxySelector {
 		String hostAndPort = string.trim();
 
 		// Split port from host
-		int indexOfPortSeparator = hostAndPort.indexOf(':');
+		int indexOfPortSeparator = hostAndPort.lastIndexOf(':');
 		int indexOfTheEndOfIPv6Address = hostAndPort.lastIndexOf(']');
 		if (indexOfPortSeparator != -1) {
 			if (indexOfTheEndOfIPv6Address < indexOfPortSeparator) {
 				// such as [2001:db8:85a3:8d3:1319:8a2e:370:7348]:3128
-				return InetSocketAddress.createUnresolved(
+				return new InetSocketAddress(
 					hostAndPort.substring(0, indexOfPortSeparator).trim(),
 					Integer.parseInt(hostAndPort.substring(indexOfPortSeparator + 1).trim()));
 			} else {
 				// such as [2001:db8:85a3:8d3:1319:8a2e:370:7348]  ... The last colon was misjudged as the port separator.
 				// So, use default port
-				return InetSocketAddress.createUnresolved(
+				return new InetSocketAddress(
 					hostAndPort,
 					ProxyUtil.DEFAULT_PROXY_PORT);
 			}
 		} else {
-			return InetSocketAddress.createUnresolved(
+			return new InetSocketAddress(
 				hostAndPort,
 				ProxyUtil.DEFAULT_PROXY_PORT);
 		}
