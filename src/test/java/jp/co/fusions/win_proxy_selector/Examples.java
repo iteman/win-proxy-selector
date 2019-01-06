@@ -30,7 +30,9 @@ public class Examples {
 
 	private void execute() throws Exception{
 		WinProxySelector myProxySelector = new WinProxySelector(ProxySelector.getDefault());
-		List<Proxy> proxies = myProxySelector.select(new URI("http://www.fusions.co.jp"));
+		URI uri = new URI("http://www.fusions.co.jp");
+		System.out.println("URI = " + uri);
+		List<Proxy> proxies = myProxySelector.select(uri);
 		System.out.println();
 		for (Proxy proxy : proxies) {
 			System.out.println(proxy);
