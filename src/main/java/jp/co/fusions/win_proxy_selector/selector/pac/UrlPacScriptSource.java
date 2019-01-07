@@ -9,9 +9,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
+import java.net.ProxySelector;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import jp.co.fusions.win_proxy_selector.selector.fixed.FixedProxySelector;
 import jp.co.fusions.win_proxy_selector.util.Logger;
 import jp.co.fusions.win_proxy_selector.util.Logger.LogLevel;
 
@@ -129,7 +131,9 @@ public class UrlPacScriptSource implements PacScriptSource {
 		setPacProxySelectorEnabled(false);
 
 		HttpURLConnection con = null;
+		ProxySelector proxySelector = ProxySelector.getDefault();
 		try {
+			ProxySelector.setDefault(new FixedProxySelector(Proxy.NO_PROXY));
 			con = setupHTTPConnection(url);
 			if (con.getResponseCode() != 200) {
 				throw new IOException("Server returned: " + con.getResponseCode() + " " + con.getResponseMessage());
@@ -146,6 +150,7 @@ public class UrlPacScriptSource implements PacScriptSource {
 			if (con != null) {
 				con.disconnect();
 			}
+			ProxySelector.setDefault(proxySelector);
 		}
 	}
 
@@ -203,11 +208,12 @@ public class UrlPacScriptSource implements PacScriptSource {
 	 ************************************************************************/
 
 	private HttpURLConnection setupHTTPConnection(String url) throws IOException, MalformedURLException {
-		HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection(Proxy.NO_PROXY);
+			HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection(Proxy.NO_PROXY);
 		con.setConnectTimeout(getTimeOut(OVERRIDE_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT));
 		con.setReadTimeout(getTimeOut(OVERRIDE_READ_TIMEOUT, DEFAULT_READ_TIMEOUT));
+		con.setUseCaches(false);
 		con.setInstanceFollowRedirects(true);
-		con.setRequestProperty("accept", "application/x-ns-proxy-autoconfig, */*;q=0.8");
+//		con.setRequestProperty("accept", "application/x-ns-proxy-autoconfig, */*;q=0.8");
 		return con;
 	}
 
