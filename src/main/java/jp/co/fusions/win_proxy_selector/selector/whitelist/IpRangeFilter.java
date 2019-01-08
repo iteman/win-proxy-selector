@@ -15,9 +15,13 @@ import jp.co.fusions.win_proxy_selector.util.UriFilter;
  ****************************************************************************/
 
 final class IpRangeFilter implements UriFilter {
+	private static final int IPv4_BIT_LENGTH = 32;
+	private static final int IPv6_BIT_LENGTH = 128;
+	private static final int IPv4_BYTE_LENGTH = IPv4_BIT_LENGTH / 8;
+	private static final int IPv6_BYTE_LENGTH = IPv6_BIT_LENGTH / 8;
 
 	private byte[] matchTo;
-	int numOfBits;
+	private int numOfBits;
 
 	/*************************************************************************
 	 * Constructor
@@ -26,7 +30,7 @@ final class IpRangeFilter implements UriFilter {
 	 *            the match subnet in CIDR notation.
 	 ************************************************************************/
 
-	public IpRangeFilter(String matchTo) {
+	IpRangeFilter(String matchTo) {
 		super();
 
 		String[] parts = matchTo.split("/");
@@ -37,11 +41,20 @@ final class IpRangeFilter implements UriFilter {
 		try {
 			InetAddress address = InetAddress.getByName(parts[0].trim());
 			this.matchTo = address.getAddress();
+
 		} catch (UnknownHostException e) {
 			throw new IllegalArgumentException("IP range is not valid:" + matchTo);
 		}
 
+
 		this.numOfBits = Integer.parseInt(parts[1].trim());
+		// In case of IPv4, convert to IPv4-mapped IPv6 address
+		if (this.matchTo.length == IPv4_BYTE_LENGTH){
+			this.matchTo = toIPv6(this.matchTo);
+			if (!parts[0].contains(":")){
+				this.numOfBits = this.numOfBits + (IPv6_BIT_LENGTH - IPv4_BIT_LENGTH);
+			}
+		}
 	}
 
 	/*************************************************************************
@@ -58,29 +71,45 @@ final class IpRangeFilter implements UriFilter {
 			InetAddress address = InetAddress.getByName(uri.getHost());
 			byte[] addr = address.getAddress();
 
-			// Comparing IP6 against IP4?
+			// We want to compare in IPv6-basis
 			if (addr.length != this.matchTo.length) {
-				return false;
+				if (addr.length == IPv4_BYTE_LENGTH){
+					addr = toIPv6(addr);
+				} else {
+					return false;
+				}
 			}
 
 			int bit = 0;
 			for (int nibble = 0; nibble < addr.length; nibble++) {
 				for (int nibblePos = 7; nibblePos >= 0; nibblePos--) {
+					if (bit >= this.numOfBits) {
+						return true;
+					}
 					int mask = 1 << nibblePos;
 					if ((this.matchTo[nibble] & mask) != (addr[nibble] & mask)) {
 						return false;
 					}
 					bit++;
-					if (bit >= this.numOfBits) {
-						return true;
-					}
 				}
 			}
 
 		} catch (UnknownHostException e) {
 			// In this case we can not get the IP do not match.
+			return false;
 		}
-		return false;
+		return true;
 	}
+	private byte[] toIPv6(byte[] ipv4Address){
+		byte ipv4asIpv6Address[] = new byte[IPv6_BYTE_LENGTH];
+		int last = IPv6_BYTE_LENGTH - 1;
+		ipv4asIpv6Address[last-5] = (byte)0xff;
+		ipv4asIpv6Address[last-4] = (byte)0xff;
+		ipv4asIpv6Address[last-3] = ipv4Address[0];
+		ipv4asIpv6Address[last-2] = ipv4Address[1];
+		ipv4asIpv6Address[last-1] = ipv4Address[2];
+		ipv4asIpv6Address[last] = ipv4Address[3];
 
+		return ipv4asIpv6Address;
+	}
 }

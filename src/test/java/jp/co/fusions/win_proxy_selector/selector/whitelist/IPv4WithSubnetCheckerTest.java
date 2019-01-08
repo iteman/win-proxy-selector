@@ -1,5 +1,7 @@
 package jp.co.fusions.win_proxy_selector.selector.whitelist;
 
+import java.net.InetAddress;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -41,10 +43,14 @@ public class IPv4WithSubnetCheckerTest {
 	 * Test method.
 	 ************************************************************************/
 	@Test
-	public void testIsValidIP6() {
+	public void testIsValidIP6() throws Exception{
 		assertTrue("Accept 2001:db8::/32", IPWithSubnetChecker.isValidIP6Range("2001:db8::/32"));
 		assertTrue("Accept 0::0/0", IPWithSubnetChecker.isValidIP6Range("0::0/0"));
 		assertTrue("Accept 2001:db8::/128", IPWithSubnetChecker.isValidIP6Range("2001:db8::/128"));
+
+		InetAddress addr =InetAddress.getByName("::ffff:192.0.2.128");
+		assertEquals("/192.0.2.128",addr.toString());
+		assertTrue("Accept ::ffff:192.0.2.128/32", IPWithSubnetChecker.isValidIP6Range("::ffff:192.0.2.128/32"));
 
 		assertFalse("Reject 2001:zb8::/32", IPWithSubnetChecker.isValidIP6Range("2001:zb8::/32"));
 		assertFalse("Reject localhost", IPWithSubnetChecker.isValidIP6Range("localhost"));

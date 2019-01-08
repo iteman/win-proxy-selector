@@ -3,41 +3,37 @@ package jp.co.fusions.win_proxy_selector.selector.whitelist;
 import java.net.URI;
 
 import jp.co.fusions.win_proxy_selector.util.UriFilter;
-
-/*****************************************************************************
+/**
  * Tests if a host name of a given URI matches some criteria.
  *
+ * @author Kei Sugimoto, Copyright 2019
  * @author Markus Bernhardt, Copyright 2016
  * @author Bernd Rosstauscher, Copyright 2009
- ****************************************************************************/
-
+ *
+ * @see <a href="https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc939852(v=technet.10)">https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc939852(v=technet.10)</a>
+ *
+ */
 final class HostnameFilter implements UriFilter {
 
 	private static final String PROTOCOL_ENDING = "://";
 
-	public enum Mode {
-		BEGINS_WITH, ENDS_WITH, REGEX
-	}
-
 	private String matchTo;
 	private String protocolFilter;
-	private Mode mode;
 
 	/*************************************************************************
 	 * Constructor
-	 * 
-	 * @param mode
-	 *            the filter mode.
+	 *
 	 * @param matchTo
 	 *            the match criteria.
 	 ************************************************************************/
 
-	public HostnameFilter(Mode mode, String matchTo) {
+	HostnameFilter(String matchTo) {
 		super();
-		this.mode = mode;
 		this.matchTo = matchTo.toLowerCase();
 
 		extractProtocolFilter();
+
+		this.matchTo = toRegex(this.matchTo);
 	}
 
 	/*************************************************************************
@@ -76,17 +72,27 @@ final class HostnameFilter implements UriFilter {
 			host = host.substring(0, index);
 		}
 
-		switch (this.mode) {
-		case BEGINS_WITH:
-			return host.toLowerCase().startsWith(this.matchTo);
-		case ENDS_WITH:
-			return host.toLowerCase().endsWith(this.matchTo);
-		case REGEX:
-			return host.toLowerCase().matches(this.matchTo);
-		}
-		return false;
+		return host.toLowerCase().matches(this.matchTo);
 	}
+	private String toRegex(String string){
+		StringBuilder b = new StringBuilder();
+		for (int i = 0; i < string.length(); i++) {
+			char ch = string.charAt(i);
+			switch (ch) {
+				case '*':
+					b.append("(.*)");
+					break;
+				default:
+					String s = Integer.toString(ch, 16);
+					int numOfZeroes = 4 - s.length();
+					b.append("\\u");
+					for (int j = 0; j < numOfZeroes; j++) b.append('0');
+					b.append(s);
+			}
+		}
+		return b.toString();
 
+	}
 	/*************************************************************************
 	 * Applies the protocol filter if available to see if we have a match.
 	 * 

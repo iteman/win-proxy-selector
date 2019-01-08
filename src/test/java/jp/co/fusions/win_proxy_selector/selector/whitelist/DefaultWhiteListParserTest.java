@@ -62,8 +62,20 @@ public class DefaultWhiteListParserTest {
 	 ************************************************************************/
 	@Test
 	public void shouldSplitMultipleEntries() throws URISyntaxException {
-		List<UriFilter> l = this.parser.parseWhiteList("*.mynet.com; *.rossi.invalid; junit*");
-		assertEquals(3, l.size());
+		List<UriFilter> l = this.parser.parseWhiteList("*.mynet.com ;; *.rossi.invalid; junit*;;www.*.com");
+		assertEquals(4, l.size());
+
+		UriFilter filter = l.get(0);
+		assertTrue(filter.accept(new URI("http://rossi.mynet.com")));
+		assertFalse(filter.accept(new URI("http://mynet.junit.test")));
+
+		filter = l.get(2);
+		assertTrue(filter.accept(new URI("https://junit.com")));
+		assertFalse(filter.accept(new URI("https://www.junit.com")));
+
+		filter = l.get(3);
+		assertFalse(filter.accept(new URI("https://junit.com")));
+		assertTrue(filter.accept(new URI("https://www.junit.com")));
 	}
 
 	/*************************************************************************
@@ -89,10 +101,11 @@ public class DefaultWhiteListParserTest {
 	 *             on error
 	 ************************************************************************/
 	@Test
-	public void shouldHandleInvalidWithoutException() throws URISyntaxException {
-		List<UriFilter> l = this.parser.parseWhiteList("http://10.*.*.*");
+	public void shouldHandleMultipleWildCards() throws URISyntaxException {
+		List<UriFilter> l = this.parser.parseWhiteList("http://10.*.*.1");
 		UriFilter filter = l.get(0);
-		assertFalse(filter.accept(new URI("http://10.0.0.1")));
+		assertTrue(filter.accept(new URI("http://10.12.0.1")));
+		assertFalse(filter.accept(new URI("http://10.12.0.2")));
 	}
 
 	/*************************************************************************
