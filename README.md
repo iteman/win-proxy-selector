@@ -74,8 +74,8 @@ if (proxies != null) {
 ```
 
 ### Logging
-Win Proxy Selector uses the SLF4J API as the default logging backend. See the Logger.Slf4jLogBackEnd class.
-If you want to use another logging API or a custom logger you can install your own logger.
+Win Proxy Selector allows you to use arbitrary logging framework.
+Install your logger which would redirect the logging output using Logger.setBackend() like this:
 ```Java
 // Register MyLogger instance 
 Logger.setBackend(new MyLogger());
