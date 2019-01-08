@@ -10,7 +10,7 @@ Note: This library is a fork of [proxy-vole](https://github.com/MarkusBernhardt/
 The library provides a ProxySelector factory which reads the proxy settings from the system config of Windows, IE config (both on the Windows Registory) and provides you a ready to use proxy selector.
 
 ## Why a fork?
-* We want more greedy approach in finding the appropriate proxy server than that used in Proxy Vole (eg. Tries provided fixed proxy address if failed to auto-detect one or the auto-detected proxy is not responding).
+* We want more greedy approach in finding the appropriate proxy server than that used in Proxy Vole (eg. tries provided fixed proxy address if failed to auto-detect one or the auto-detected proxy is not responding).
 
 ## Usage
 
@@ -23,15 +23,15 @@ ProxySelector myProxySelector = new WinProxySelector(ProxySelector.getDefault())
 // Proxies can be got by invoking select() method with a URI you want to connect to.
 List<Proxy> proxies = myProxySelector.select(new URI("http://www.fusions.co.jp"));
 
-// You can also install this ProxySelector as default ProxySelector for all connections.
+// You can also install this ProxySelector as the default ProxySelector for all connections.
 ProxySelector.setDefault(proxySelector);
 ```
 
 ### How to handle proxy authentication
-Some proxy servers request a login from the user before they will allow any connections. Proxy Vole 
-has no support to handle this automatically. This needs to be done manually, because there is no way to read 
-the login and password. These settings are stored encrypted. You need to install an authenticator in your Java
-program manually and e.g. ask the user in a dialog to enter the username and password.
+Some proxy servers request a login from the user before they will allow any connections. Win Proxy Selector 
+has no support to handle this automatically. 
+In the Java communication framework, it is not a responsibility of a ProxySelector but an Authenticator to authenticate users.
+You need to install an authenticator in your Java program manually and e.g. ask the user in a dialog to enter the username and password.
 ```Java
 Authenticator.setDefault(new Authenticator() {
     protected PasswordAuthentication getPasswordAuthentication() {
