@@ -596,8 +596,7 @@ public class PacScriptMethods implements ScriptMethods {
 	}
 
 	/*************************************************************************
-	 * isInNetEx Implementation from
-	 * http://fhanik.blogspot.ch/2013/11/ip-magic-check-if-ipv6-address-is.html
+	 * isInNetEx Implementation
 	 * 
 	 * @see ScriptMethods#isInNetEx(java.lang.String,
 	 *      java.lang.String)
