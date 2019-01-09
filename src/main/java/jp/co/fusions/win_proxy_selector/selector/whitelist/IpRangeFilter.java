@@ -14,12 +14,13 @@ import jp.co.fusions.win_proxy_selector.util.UriFilter;
  * @author Bernd Rosstauscher, Copyright 2009
  ****************************************************************************/
 
-final class IpRangeFilter implements UriFilter {
+public final class IpRangeFilter implements UriFilter {
 	private static final int IPv4_BIT_LENGTH = 32;
 	private static final int IPv6_BIT_LENGTH = 128;
 	private static final int IPv4_BYTE_LENGTH = IPv4_BIT_LENGTH / 8;
 	private static final int IPv6_BYTE_LENGTH = IPv6_BIT_LENGTH / 8;
 
+	private String originalMatchTo;
 	private byte[] matchTo;
 	private int numOfBits;
 
@@ -30,20 +31,20 @@ final class IpRangeFilter implements UriFilter {
 	 *            the match subnet in CIDR notation.
 	 ************************************************************************/
 
-	IpRangeFilter(String matchTo) {
-		super();
-
-		String[] parts = matchTo.split("/");
+	public IpRangeFilter(String matchTo) {
+		this.originalMatchTo = matchTo;
+	}
+	private void prepare(){
+		String[] parts = this.originalMatchTo.split("/");
 		if (parts.length != 2) {
-			throw new IllegalArgumentException("IP range is not valid:" + matchTo);
+			return;
 		}
 
 		try {
 			InetAddress address = InetAddress.getByName(parts[0].trim());
 			this.matchTo = address.getAddress();
-
 		} catch (UnknownHostException e) {
-			throw new IllegalArgumentException("IP range is not valid:" + matchTo);
+			return;
 		}
 
 
@@ -67,8 +68,16 @@ final class IpRangeFilter implements UriFilter {
 		if (uri == null || uri.getHost() == null) {
 			return false;
 		}
+
+		return acceptsHost(uri.getHost());
+	}
+	public boolean acceptsHost(String host) {
+		if (this.matchTo == null){
+			prepare();
+		}
+
 		try {
-			InetAddress address = InetAddress.getByName(uri.getHost());
+			InetAddress address = InetAddress.getByName(host);
 			byte[] addr = address.getAddress();
 
 			// We want to compare in IPv6-basis
@@ -93,12 +102,12 @@ final class IpRangeFilter implements UriFilter {
 					bit++;
 				}
 			}
+			return true;
 
 		} catch (UnknownHostException e) {
 			// In this case we can not get the IP do not match.
 			return false;
 		}
-		return true;
 	}
 	private byte[] toIPv6(byte[] ipv4Address){
 		byte ipv4asIpv6Address[] = new byte[IPv6_BYTE_LENGTH];

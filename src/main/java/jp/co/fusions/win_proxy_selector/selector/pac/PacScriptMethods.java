@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
-import java.util.regex.Pattern;
+import jp.co.fusions.win_proxy_selector.selector.whitelist.IpRangeFilter;
 import jp.co.fusions.win_proxy_selector.util.Logger;
 import jp.co.fusions.win_proxy_selector.util.Logger.LogLevel;
 
@@ -595,11 +595,6 @@ public class PacScriptMethods implements ScriptMethods {
 		return isResolvable(host);
 	}
 
-	// constants
-	private static final BigInteger HIGH_32_INT = new BigInteger(new byte[] { -1, -1, -1, -1 });
-	private static final BigInteger HIGH_128_INT = new BigInteger(
-	        new byte[] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 });
-
 	/*************************************************************************
 	 * isInNetEx Implementation from
 	 * http://fhanik.blogspot.ch/2013/11/ip-magic-check-if-ipv6-address-is.html
@@ -612,30 +607,13 @@ public class PacScriptMethods implements ScriptMethods {
 		if (ipOrHost == null || ipOrHost.length() == 0 || cidr == null || cidr.length() == 0) {
 			return false;
 		}
-
 		try {
-			// Split CIDR, usually written like 2000::/64"
-			String[] cidrParts = cidr.split("/");
-			if (cidrParts.length != 2) {
-				return false;
-			}
-			String cidrRange = cidrParts[0];
-			int cidrBits = Integer.parseInt(cidrParts[1]);
-
-			byte[] addressBytes = InetAddress.getByName(ipOrHost).getAddress();
-			BigInteger ip = new BigInteger(addressBytes);
-			BigInteger mask = addressBytes.length == 4 ? HIGH_32_INT.shiftLeft(32 - cidrBits)
-			        : HIGH_128_INT.shiftLeft(128 - cidrBits);
-
-			byte[] rangeBytes = InetAddress.getByName(cidrRange).getAddress();
-			BigInteger range = new BigInteger(rangeBytes);
-			BigInteger lowIP = range.and(mask);
-			BigInteger highIP = lowIP.add(mask.not());
-
-			return lowIP.compareTo(ip) <= 0 && highIP.compareTo(ip) >= 0;
-		} catch (UnknownHostException e) {
+			IpRangeFilter filter = new IpRangeFilter(cidr);
+			return filter.acceptsHost(ipOrHost);
+		} catch (Exception e) {
 			return false;
 		}
+
 	}
 
 	/*************************************************************************
