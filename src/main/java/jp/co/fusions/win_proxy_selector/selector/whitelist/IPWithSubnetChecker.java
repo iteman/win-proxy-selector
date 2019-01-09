@@ -12,12 +12,14 @@ import java.util.regex.Pattern;
 
 final class IPWithSubnetChecker {
 
-	private static Pattern IP_SUB_PATTERN = Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-	        + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-	        + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])/(\\d|([12]\\d|3[0-2]))$");
+	private static String IP4_BODY = "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+		+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+		+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
+	private static Pattern IP_SUB_PATTERN = Pattern.compile("^" + IP4_BODY + "/(\\d|([12]\\d|3[0-2]))$");
 
 	// Could be improved
 	private static Pattern IP6_SUB_PATTERN = Pattern.compile("^[a-f0-9:]*/[0-9]+$");
+	private static Pattern IP4_MAPPED_IP6_SUB_PATTERN = Pattern.compile("^::ffff:" + IP4_BODY+ "/[0-9]+$");
 
 	/*************************************************************************
 	 * Tests if a given string is of in the correct format for an IP4 subnet
@@ -42,6 +44,8 @@ final class IPWithSubnetChecker {
 	 ************************************************************************/
 
 	public static boolean isValidIP6Range(String possibleIPAddress) {
-		return IP6_SUB_PATTERN.matcher(possibleIPAddress).matches();
+		return
+			IP6_SUB_PATTERN.matcher(possibleIPAddress).matches() ||
+			IP4_MAPPED_IP6_SUB_PATTERN.matcher(possibleIPAddress).matches();
 	}
 }

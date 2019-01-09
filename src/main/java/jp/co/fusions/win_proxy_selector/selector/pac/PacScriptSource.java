@@ -11,6 +11,8 @@ import java.io.IOException;
 
 public interface PacScriptSource {
 
+	String getName();
+
 	/*************************************************************************
 	 * Gets the PAC script content as String.
 	 * 
@@ -19,7 +21,7 @@ public interface PacScriptSource {
 	 *             on read error.
 	 ************************************************************************/
 
-	public String getScriptContent() throws IOException;
+	String getScriptContent() throws IOException;
 
 	/*************************************************************************
 	 * Checks if the content of the script is valid and if it is possible to use
@@ -29,6 +31,7 @@ public interface PacScriptSource {
 	 * @return true if everything is fine, else false.
 	 ************************************************************************/
 
-	public boolean isScriptValid();
+	boolean isScriptValid();
+
 
 }

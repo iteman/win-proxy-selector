@@ -1,5 +1,7 @@
 package jp.co.fusions.win_proxy_selector.selector.pac;
 
+import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -192,6 +194,29 @@ public class PacScriptMethodsTest {
 		assertFalse("127.0.0.1".equals(myIP));
 		assertFalse("".equals(myIP));
 		assertNotNull(myIP);
+		assertEquals(InetAddress.getLocalHost().getHostAddress() + "",myIP);
+	}
+	/*************************************************************************
+	 * Test method
+	 *
+	 * @throws UnknownHostException
+	 *             on resolve error.
+	 ************************************************************************/
+	@Test
+	public void testMyIpAddressEx() throws UnknownHostException {
+		String myIP = buildParser().myIpAddressEx();
+		assertFalse("::1".equals(myIP));
+		assertFalse("".equals(myIP));
+		assertNotNull(myIP);
+		String[] adrs = myIP.split(";");
+		assertTrue(adrs.length > 0);
+		String localIPv4 = InetAddress.getLocalHost().getHostAddress() + "";
+		for (String adr : adrs) {
+			if (adr.equals(localIPv4)){
+				return;
+			}
+		}
+		fail("LocalIPv4 address not included.");
 	}
 
 	/*************************************************************************
@@ -201,7 +226,8 @@ public class PacScriptMethodsTest {
 	public void testShExpMatch() {
 		assertEquals(true, buildParser().shExpMatch("host1.unit-test.invalid", "host1.unit-test.*"));
 		assertEquals(true, buildParser().shExpMatch("host1.unit-test.invalid", "*.unit-test.invalid"));
-		assertEquals(true, buildParser().shExpMatch("host1.unit-test.invalid", "*.unit*.invalid"));
+		assertEquals(true, buildParser().shExpMatch("host1.unit-test.invalid", "*.unit**.invalid"));
+		assertEquals(true, buildParser().shExpMatch("host1.unit-test.invalid", "*"));
 
 		assertEquals(false, buildParser().shExpMatch("202.310.65.6", "10.*"));
 		assertEquals(false, buildParser().shExpMatch("202.310.65.6", "*.65"));

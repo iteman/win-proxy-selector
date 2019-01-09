@@ -145,7 +145,9 @@ class JavaxPacScriptParser implements PacScriptParser {
 			script = new StringBuilder(this.source.getScriptContent());
 			String evalMethod = " ;" + findProxyFunctionName + " (\"" + url + "\",\"" + host + "\")";
 			script.append(evalMethod);
+			Logger.log(getClass(), LogLevel.INFO, "Evaluating PAC script from: {0}\n\n{1}\n", this.source.getName(),script);
 			Object result = this.engine.eval(script.toString());
+			Logger.log(getClass(), LogLevel.INFO, "PAC script evaluates to : \"{0}\"", result);
 			return (String) result;
 		} catch (Exception e) {
 			String script2 = (script == null) ? "" : script.toString();

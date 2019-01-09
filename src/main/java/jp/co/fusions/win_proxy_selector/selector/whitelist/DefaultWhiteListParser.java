@@ -43,23 +43,16 @@ public class DefaultWhiteListParser implements WhiteListParser {
 	public List<UriFilter> parseWhiteList(String whiteList) {
 		List<UriFilter> result = new ArrayList<UriFilter>();
 
-		String[] token = whiteList.split("[, ]+");
+		// Allow commas, semicolons, and spaces as separators, with preceding or succeeding spaces.
+		String[] token = whiteList.split("((\\s)*[,;\\s](\\s)*)+");
 		for (int i = 0; i < token.length; i++) {
 			String tkn = token[i].trim();
 			if (isIP4SubnetFilter(tkn) || isIP6SubnetFilter(tkn)) {
 				result.add(new IpRangeFilter(tkn));
-				continue;
-			} else if (tkn.endsWith("*")) {
-				tkn = tkn.substring(0, tkn.length() - 1);
-				result.add(new HostnameFilter(HostnameFilter.Mode.BEGINS_WITH, tkn));
-				continue;
-			} else if (tkn.trim().startsWith("*")) {
-				tkn = tkn.substring(1);
-				result.add(new HostnameFilter(HostnameFilter.Mode.ENDS_WITH, tkn));
 			} else if (tkn.trim().equals("<local>")) {
 				result.add(new LocalByPassFilter());
 			} else {
-				result.add(new HostnameFilter(HostnameFilter.Mode.ENDS_WITH, tkn));
+				result.add(new HostnameFilter(tkn));
 			}
 		}
 
