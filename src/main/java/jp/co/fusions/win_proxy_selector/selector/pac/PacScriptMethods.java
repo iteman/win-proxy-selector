@@ -3,7 +3,6 @@ package jp.co.fusions.win_proxy_selector.selector.pac;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
@@ -19,19 +18,21 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeMap;
-
+import java.util.regex.Pattern;
 import jp.co.fusions.win_proxy_selector.selector.whitelist.IpRangeFilter;
 import jp.co.fusions.win_proxy_selector.util.Logger;
 import jp.co.fusions.win_proxy_selector.util.Logger.LogLevel;
 
 /***************************************************************************
  * Implementation of PAC JavaScript functions.
- * 
+ *
  * @author Markus Bernhardt, Copyright 2016
  * @author Bernd Rosstauscher, Copyright 2009
  ***************************************************************************
  */
 public class PacScriptMethods implements ScriptMethods {
+	private static final int IPv4_BIT_LENGTH = 32;
+	private static final int IPv4_BYTE_LENGTH = IPv4_BIT_LENGTH / 8;
 
 	// TODO 30.03.2015 bros Test for IP6 compatibility
 
@@ -40,10 +41,10 @@ public class PacScriptMethods implements ScriptMethods {
 	private final static String GMT = "GMT";
 
 	private final static List<String> DAYS = Collections
-	        .unmodifiableList(Arrays.asList("SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"));
+		.unmodifiableList(Arrays.asList("SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"));
 
 	private final static List<String> MONTH = Collections.unmodifiableList(
-	        Arrays.asList("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"));
+		Arrays.asList("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"));
 
 	private Calendar currentTime;
 
@@ -57,7 +58,7 @@ public class PacScriptMethods implements ScriptMethods {
 
 	/*************************************************************************
 	 * isPlainHostName
-	 * 
+	 *
 	 * @see ScriptMethods#isPlainHostName(java.lang.String)
 	 ************************************************************************/
 
@@ -67,7 +68,7 @@ public class PacScriptMethods implements ScriptMethods {
 
 	/*************************************************************************
 	 * Tests if an URL is in a given domain.
-	 * 
+	 *
 	 * @param host
 	 *            is the host name from the URL.
 	 * @param domain
@@ -78,11 +79,12 @@ public class PacScriptMethods implements ScriptMethods {
 	public boolean dnsDomainIs(String host, String domain) {
 		return host.endsWith(domain);
 	}
+
 	/*************************************************************************
 	 * Is true if the host name matches exactly the specified host name, or if
 	 * there is no domain name part in the host name, but the unqualified host
 	 * name matches.
-	 * 
+	 *
 	 * @param host
 	 *            the host name from the URL.
 	 * @param domain
@@ -96,7 +98,7 @@ public class PacScriptMethods implements ScriptMethods {
 
 	/*************************************************************************
 	 * Tries to resolve the host name. Returns true if succeeds.
-	 * 
+	 *
 	 * @param host
 	 *            is the host name from the URL.
 	 * @return true if resolvable else false.
@@ -116,10 +118,10 @@ public class PacScriptMethods implements ScriptMethods {
 	 * Returns true if the IP address of the host matches the specified IP
 	 * address pattern. Pattern and mask specification is done the same way as
 	 * for SOCKS configuration.
-	 * 
+	 *
 	 * Example: isInNet(host, "198.95.0.0", "255.255.0.0") is true if the IP
 	 * address of the host matches 198.95.*.*.
-	 * 
+	 *
 	 * @param host
 	 *            a DNS host name, or IP address. If a host name is passed, it
 	 *            will be resolved into an IP address by this function.
@@ -145,7 +147,7 @@ public class PacScriptMethods implements ScriptMethods {
 
 	/*************************************************************************
 	 * Convert a string representation of a IP to a long.
-	 * 
+	 *
 	 * @param address
 	 *            to convert.
 	 * @return the address as long.
@@ -167,7 +169,7 @@ public class PacScriptMethods implements ScriptMethods {
 	/*************************************************************************
 	 * Resolves the given DNS host name into an IP address, and returns it in
 	 * the dot separated format as a string.
-	 * 
+	 *
 	 * @param host
 	 *            the host to resolve.
 	 * @return the resolved IP, empty string if not resolvable.
@@ -186,25 +188,25 @@ public class PacScriptMethods implements ScriptMethods {
 	/*************************************************************************
 	 * Returns the IP address of the host that the process is running on, as a
 	 * string in the dot-separated integer format.
-	 * 
+	 *
 	 * @return an IP as string.
 	 ************************************************************************/
 
 	public String myIpAddress() {
-		return getLocalAddressOfType(Inet4Address.class);
+		try {
+			return InetAddress.getLocalHost().getHostAddress() + "";
+		} catch (UnknownHostException e) {
+			return "";
+		}
 	}
-
 	/*************************************************************************
-	 * Get the current IP address of the computer. This will return the first
-	 * address of the first network interface that is a "real" IP address of the
-	 * given type.
-	 * 
-	 * @param cl
-	 *            the type of address we are searching for.
-	 * @return the address as string or "" if not found.
+	 * myIpAddressEx
+	 *
+	 * @see ScriptMethods#myIpAddressEx()
 	 ************************************************************************/
 
-	private String getLocalAddressOfType(Class<? extends InetAddress> cl) {
+	public String myIpAddressEx() {
+		StringBuilder b = new StringBuilder();
 		try {
 			String overrideIP = System.getProperty(OVERRIDE_LOCAL_IP);
 			if (overrideIP != null && overrideIP.trim().length() > 0) {
@@ -219,23 +221,38 @@ public class PacScriptMethods implements ScriptMethods {
 				Enumeration<InetAddress> addresses = current.getInetAddresses();
 				while (addresses.hasMoreElements()) {
 					InetAddress adr = addresses.nextElement();
-					if (cl.isInstance(adr)) {
-						Logger.log(JavaxPacScriptParser.class, LogLevel.TRACE, "Local address resolved to {0}", adr);
-						return adr.getHostAddress();
+					Logger.log(JavaxPacScriptParser.class, LogLevel.TRACE, "Local address resolved to {0}", adr);
+					if (b.length() > 0){
+						b.append(';');
 					}
+					/*
+						According to the following page by Microsoft,
+						IPv6 link-local addresses (fe80::～) are included in the result list without zone indices.
+						Therefore we strip them;
+
+						https://blogs.msdn.microsoft.com/wndp/2006/07/13/extensions-to-the-navigator-proxy-auto-config-file-format-specification-to-support-ipv6-v0-9/
+					 */
+					b.append(getHostAddressWithoutZoneIndex(adr));
 				}
 			}
-			return "";
+			return sortIpAddressList(b.toString());
 		} catch (IOException e) {
 			Logger.log(JavaxPacScriptParser.class, LogLevel.DEBUG, "Local address not resolvable.");
 			return "";
 		}
 	}
+	private String getHostAddressWithoutZoneIndex(InetAddress adr){
+		String hostAddress = adr.getHostAddress();
+		if (!adr.isLinkLocalAddress()) return hostAddress;
+		int index = hostAddress.indexOf('%');
+		if (index < 0) return hostAddress;
+		return hostAddress.substring(0,index);
+	}
 
 	/*************************************************************************
 	 * Returns the number of DNS domain levels (number of dots) in the host
 	 * name.
-	 * 
+	 *
 	 * @param host
 	 *            is the host name from the URL.
 	 * @return number of DNS domain levels.
@@ -254,7 +271,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * Returns true if the string matches the specified shell expression.
 	 * Actually, currently the patterns are shell expressions, not regular
 	 * expressions.
-	 * 
+	 *
 	 * @param str
 	 *            is any string to compare (e.g. the URL, or the host name).
 	 * @param shexp
@@ -297,7 +314,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * condition is true if the current weekday is in between those two
 	 * weekdays. Bounds are inclusive. If the "GMT" parameter is specified,
 	 * times are taken to be in GMT, otherwise the local time zone is used.
-	 * 
+	 *
 	 * @param wd1
 	 *            weekday 1 is one of SUN MON TUE WED THU FRI SAT
 	 * @param wd2
@@ -330,7 +347,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * based methods will use this calendar to determine the current time
 	 * instead of the real time. This is only be used by unit tests and is not
 	 * part of the public API.
-	 * 
+	 *
 	 * @param cal
 	 *            a Calendar to set.
 	 ************************************************************************/
@@ -342,7 +359,7 @@ public class PacScriptMethods implements ScriptMethods {
 	/*************************************************************************
 	 * Gets a calendar set to the current time. This is used by the date and
 	 * time based methods.
-	 * 
+	 *
 	 * @param useGmt
 	 *            flag to indicate if the calendar is to be created in GMT time
 	 *            or local time.
@@ -364,7 +381,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * and "to" are specified then the bounds are inclusive. If the "GMT"
 	 * parameter is specified, times are taken to be in GMT, otherwise the local
 	 * time zone is used.
-	 * 
+	 *
 	 * @param day1
 	 *            is the day of month between 1 and 31 (as an integer).
 	 * @param month1
@@ -385,7 +402,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 ************************************************************************/
 
 	public boolean dateRange(Object day1, Object month1, Object year1, Object day2, Object month2, Object year2,
-	        Object gmt) {
+							 Object gmt) {
 
 		// Guess the parameter meanings.
 		Map<String, Integer> params = new HashMap<String, Integer>();
@@ -445,7 +462,7 @@ public class PacScriptMethods implements ScriptMethods {
 	/*************************************************************************
 	 * Try to guess the type of the given parameter and put it into the params
 	 * map.
-	 * 
+	 *
 	 * @param params
 	 *            a map to put the parsed parameters into.
 	 * @param value
@@ -496,7 +513,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * it's value. If "from" and "to" are specified then the bounds are
 	 * inclusive. If the "GMT" parameter is specified, times are taken to be in
 	 * GMT, otherwise the local time zone is used.<br>
-	 * 
+	 *
 	 * <pre>
 	 * timeRange(hour)
 	 * timeRange(hour1, hour2)
@@ -504,7 +521,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * timeRange(hour1, min1, sec1, hour2, min2, sec2)
 	 * timeRange(hour1, min1, sec1, hour2, min2, sec2, gmt)
 	 * </pre>
-	 * 
+	 *
 	 * @param hour1
 	 *            is the hour from 0 to 23. (0 is midnight, 23 is 11 pm.)
 	 * @param min1
@@ -523,9 +540,9 @@ public class PacScriptMethods implements ScriptMethods {
 	 ************************************************************************/
 
 	public boolean timeRange(Object hour1, Object min1, Object sec1, Object hour2, Object min2, Object sec2,
-	        Object gmt) {
+							 Object gmt) {
 		boolean useGmt = GMT.equalsIgnoreCase(String.valueOf(min1)) || GMT.equalsIgnoreCase(String.valueOf(sec1))
-		        || GMT.equalsIgnoreCase(String.valueOf(min2)) || GMT.equalsIgnoreCase(String.valueOf(gmt));
+			|| GMT.equalsIgnoreCase(String.valueOf(min2)) || GMT.equalsIgnoreCase(String.valueOf(gmt));
 
 		Calendar cal = getCurrentTime(useGmt);
 		cal.set(Calendar.MILLISECOND, 0);
@@ -587,7 +604,7 @@ public class PacScriptMethods implements ScriptMethods {
 
 	/*************************************************************************
 	 * isResolvableEx
-	 * 
+	 *
 	 * @see ScriptMethods#isResolvableEx(java.lang.String)
 	 ************************************************************************/
 
@@ -597,7 +614,7 @@ public class PacScriptMethods implements ScriptMethods {
 
 	/*************************************************************************
 	 * isInNetEx Implementation
-	 * 
+	 *
 	 * @see ScriptMethods#isInNetEx(java.lang.String,
 	 *      java.lang.String)
 	 ************************************************************************/
@@ -617,7 +634,7 @@ public class PacScriptMethods implements ScriptMethods {
 
 	/*************************************************************************
 	 * dnsResolveEx
-	 * 
+	 *
 	 * @see ScriptMethods#dnsResolveEx(java.lang.String)
 	 ************************************************************************/
 
@@ -636,18 +653,8 @@ public class PacScriptMethods implements ScriptMethods {
 	}
 
 	/*************************************************************************
-	 * myIpAddressEx
-	 * 
-	 * @see ScriptMethods#myIpAddressEx()
-	 ************************************************************************/
-
-	public String myIpAddressEx() {
-		return getLocalAddressOfType(Inet6Address.class);
-	}
-
-	/*************************************************************************
 	 * sortIpAddressList
-	 * 
+	 *
 	 * @see ScriptMethods#sortIpAddressList(java.lang.String)
 	 ************************************************************************/
 
@@ -687,7 +694,7 @@ public class PacScriptMethods implements ScriptMethods {
 
 	/*************************************************************************
 	 * getClientVersion
-	 * 
+	 *
 	 * @see ScriptMethods#getClientVersion()
 	 ************************************************************************/
 
