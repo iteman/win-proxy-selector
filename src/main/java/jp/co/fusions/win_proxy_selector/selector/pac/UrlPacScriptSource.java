@@ -49,6 +49,11 @@ public class UrlPacScriptSource implements PacScriptSource {
 		this.scriptUrl = url;
 	}
 
+	@Override
+	public String getName() {
+		return scriptUrl;
+	}
+
 	/*************************************************************************
 	 * getScriptContent
 	 * 

@@ -193,6 +193,10 @@ public class PacScriptMethods implements ScriptMethods {
 	 ************************************************************************/
 
 	public String myIpAddress() {
+		String overrideIP = System.getProperty(OVERRIDE_LOCAL_IP);
+		if (overrideIP != null && overrideIP.trim().length() > 0) {
+			return overrideIP.trim();
+		}
 		try {
 			return InetAddress.getLocalHost().getHostAddress() + "";
 		} catch (UnknownHostException e) {
