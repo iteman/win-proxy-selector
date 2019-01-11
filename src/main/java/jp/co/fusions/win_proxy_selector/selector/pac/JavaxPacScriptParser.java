@@ -131,27 +131,37 @@ class JavaxPacScriptParser implements PacScriptParser {
 	 ************************************************************************/
 	public String evaluate(String url, String host) throws ProxyEvaluationException {
 		try {
-			// for IPv6
-			return evaluate(url, host, "FindProxyForURLEx");
+			String script = this.source.getScriptContent();
+			if (script.contains("FindProxyForURLEx")) {
+				// for IPv6
+				try {
+					return evaluate(url, host, script, "FindProxyForURLEx");
+				} catch (ProxyEvaluationException e) {
+					Logger.log(getClass(), LogLevel.DEBUG, "FindProxyForURLEx failed. Trying FindProxyForURL. \n{0}\n{1}", e.getScript(), e);
+					return evaluate(url, host, script, "FindProxyForURL");
+				}
+			} else {
+				// for IPv4
+				return evaluate(url, host, script, "FindProxyForURL");
+			}
 		} catch (ProxyEvaluationException e) {
-			Logger.log(getClass(), LogLevel.DEBUG, "FindProxyForURLEx failed. Trying FindProxyForURL. \n{0}\n{1}", e.getScript(), e);
-			return evaluate(url, host, "FindProxyForURL");
+			throw e;
+		} catch (RuntimeException e){
+			throw new ProxyEvaluationException(e);
 		}
 	}
 
-	private String evaluate(String url, String host, String findProxyFunctionName) throws ProxyEvaluationException {
-		StringBuilder script = null;
+	private String evaluate(String url, String host, String scriptBody, String findProxyFunctionName) throws ProxyEvaluationException {
+		String evalMethod = " ;" + findProxyFunctionName + " (\"" + url + "\",\"" + host + "\")";
+		String script = scriptBody + evalMethod;
+		Logger.log(getClass(), LogLevel.INFO, "Evaluating PAC script from: {0}\n\n{1}\n", this.source.getName(), script);
+
 		try {
-			script = new StringBuilder(this.source.getScriptContent());
-			String evalMethod = " ;" + findProxyFunctionName + " (\"" + url + "\",\"" + host + "\")";
-			script.append(evalMethod);
-			Logger.log(getClass(), LogLevel.INFO, "Evaluating PAC script from: {0}\n\n{1}\n", this.source.getName(),script);
-			Object result = this.engine.eval(script.toString());
+			Object result = this.engine.eval(script);
 			Logger.log(getClass(), LogLevel.INFO, "PAC script evaluates to : \"{0}\"", result);
 			return (String) result;
 		} catch (Exception e) {
-			String script2 = (script == null) ? "" : script.toString();
-			throw new ProxyEvaluationException("Error while executing PAC script: " + e.getMessage(), e, script2);
+			throw new ProxyEvaluationException("Error while executing PAC script: " + e.getMessage(), e, script);
 		}
 
 	}
