@@ -130,18 +130,24 @@ class JavaxPacScriptParser implements PacScriptParser {
 	 *             on execution error.
 	 ************************************************************************/
 	public String evaluate(String url, String host) throws ProxyEvaluationException {
-		String script = this.source.getScriptContent();
-		if (script.contains("FindProxyForURLEx")) {
-			// for IPv6
-			try {
-				return evaluate(url, host, script, "FindProxyForURLEx");
-			} catch (ProxyEvaluationException e) {
-				Logger.log(getClass(), LogLevel.DEBUG, "FindProxyForURLEx failed. Trying FindProxyForURL. \n{0}\n{1}", e.getScript(), e);
+		try {
+			String script = this.source.getScriptContent();
+			if (script.contains("FindProxyForURLEx")) {
+				// for IPv6
+				try {
+					return evaluate(url, host, script, "FindProxyForURLEx");
+				} catch (ProxyEvaluationException e) {
+					Logger.log(getClass(), LogLevel.DEBUG, "FindProxyForURLEx failed. Trying FindProxyForURL. \n{0}\n{1}", e.getScript(), e);
+					return evaluate(url, host, script, "FindProxyForURL");
+				}
+			} else {
+				// for IPv4
 				return evaluate(url, host, script, "FindProxyForURL");
 			}
-		} else {
-			// for IPv4
-			return evaluate(url, host, script, "FindProxyForURL");
+		} catch (ProxyEvaluationException e) {
+			throw e;
+		} catch (RuntimeException e){
+			throw new ProxyEvaluationException(e);
 		}
 	}
 
