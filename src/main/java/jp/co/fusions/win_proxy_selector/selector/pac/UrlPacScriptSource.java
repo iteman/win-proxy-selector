@@ -60,7 +60,7 @@ public class UrlPacScriptSource implements PacScriptSource {
 	 * @see PacScriptSource#getScriptContent()
 	 ************************************************************************/
 
-	public synchronized String getScriptContent() throws IOException {
+	public synchronized String getScriptContent()  {
 		if (this.scriptContent == null
 		        || (this.expireAtMillis > 0 && this.expireAtMillis < System.currentTimeMillis())) {
 			try {
@@ -77,7 +77,7 @@ public class UrlPacScriptSource implements PacScriptSource {
 				Logger.log(getClass(), LogLevel.ERROR, "Loading script failed from: {0} with error {1}", this.scriptUrl,
 				        e);
 				this.scriptContent = "";
-				throw e;
+				throw new RuntimeException( e );
 			}
 		}
 		return this.scriptContent;
@@ -284,22 +284,17 @@ public class UrlPacScriptSource implements PacScriptSource {
 	 ************************************************************************/
 
 	public boolean isScriptValid() {
-		try {
-			String script = getScriptContent();
-			if (script == null || script.trim().length() == 0) {
-				Logger.log(getClass(), LogLevel.DEBUG, "PAC script is empty. Skipping script!");
-				return false;
-			}
-			if (script.indexOf("FindProxyForURL") == -1) {
-				Logger.log(getClass(), LogLevel.DEBUG,
-				        "PAC script entry point FindProxyForURL not found. Skipping script!");
-				return false;
-			}
-			return true;
-		} catch (IOException e) {
-			Logger.log(getClass(), LogLevel.DEBUG, "File reading error: {0}", e);
+		String script = getScriptContent();
+		if (script == null || script.trim().length() == 0) {
+			Logger.log(getClass(), LogLevel.DEBUG, "PAC script is empty. Skipping script!");
 			return false;
 		}
+		if (script.indexOf("FindProxyForURL") == -1) {
+			Logger.log(getClass(), LogLevel.DEBUG,
+				"PAC script entry point FindProxyForURL not found. Skipping script!");
+			return false;
+		}
+		return true;
 	}
 
 }

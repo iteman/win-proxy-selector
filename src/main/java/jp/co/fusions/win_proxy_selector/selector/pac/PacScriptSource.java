@@ -17,11 +17,9 @@ public interface PacScriptSource {
 	 * Gets the PAC script content as String.
 	 * 
 	 * @return a script.
-	 * @throws IOException
-	 *             on read error.
 	 ************************************************************************/
 
-	String getScriptContent() throws IOException;
+	String getScriptContent() ;
 
 	/*************************************************************************
 	 * Checks if the content of the script is valid and if it is possible to use
