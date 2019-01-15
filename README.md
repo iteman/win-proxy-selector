@@ -7,7 +7,7 @@ Win Proxy Selector is currently dedicated to the Windows environment.
 Note: This library is a fork of [proxy-vole](https://github.com/MarkusBernhardt/proxy-vole/) which in turn is the now dead [proxy-vole](https://code.google.com/p/proxy-vole/) project by Bernd Rosstauscher hosted at Google Code.
 
 ## Introduction
-The library provides a ProxySelector factory which reads the proxy settings from the system config of Windows, IE config (both on the Windows Registory) and provides you a ready to use proxy selector.
+The library provides a ProxySelector implementation which reads the proxy settings from the system config of Windows, IE config (both on the Windows Registory) and provides you a ready to use proxy selector.
 
 ## Why a fork?
 * We want more greedy approach in finding the appropriate proxy server than that used in Proxy Vole (eg. tries provided fixed proxy address if failed to auto-detect one or the auto-detected proxy is not responding).
