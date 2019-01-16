@@ -14,7 +14,7 @@ The library provides a ProxySelector implementation which reads the proxy settin
 
 ## Usage
 
-### Using the default strategy to find the settings
+### Using WinProxySelector
 ```Java
 // Instantiate a WinProxySelector giving a fallback proxy selector (usually the system's default proxy selector).
 
